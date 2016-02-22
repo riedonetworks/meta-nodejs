@@ -25,7 +25,7 @@ oe_runnpm() {
 
 	bbnote ${NPM} --registry=${NPM_REGISTRY} --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} ${NPM_FLAGS} "$@"
 
-	export JOBS=${@oe.utils.cpu_count()}
+	export JOBS=$(grep -c ^processor /proc/cpuinfo)
 
 	LD="${NPM_LD}" ${NPM} --registry=${NPM_REGISTRY} --arch=${NPM_ARCH} --target_arch=${NPM_ARCH} ${NPM_FLAGS} "$@" || die "oe_runnpm failed"
 
@@ -49,7 +49,7 @@ oe_runnpm_native() {
 
 	bbnote ${NPM_NATIVE} --arch=${NPM_ARCH_NATIVE} --target_arch=${NPM_ARCH_NATIVE} ${NPM_FLAGS_NATIVE} "$@"
 
-	export JOBS=${@oe.utils.cpu_count()}
+	export JOBS=$(grep -c ^processor /proc/cpuinfo)
 
 	LD="${NPM_LD_NATIVE}" ${NPM_NATIVE} --arch=${NPM_ARCH_NATIVE} --target_arch=${NPM_ARCH_NATIVE} ${NPM_FLAGS_NATIVE} "$@" || die "oe_runnpm_native failed"
 
