@@ -8,7 +8,9 @@ PROVIDES = "node"
 RPROVIDES_${PN} = "node"
 RCONFLICTS_${PN} = "iojs"
 
-SRC_URI = "https://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz;name=src"
+SRC_URI = "https://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz;name=src \
+           file://0001-fix-execvp-printf-argument-list-too-long.patch \
+           "
 
 S = "${WORKDIR}/node-v${PV}"
 
