@@ -1,47 +1,22 @@
 meta-nodejs
 ===========
-OpenEmbedded layer for latest stable [Node.js](https://nodejs.org/ "Node.js") and [io.js](https://iojs.org/ "io.js") releases. 
+
+OpenEmbedded layer for latest stable [Node.js](https://nodejs.org/ "Node.js") releases. 
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=imyller&url=https://github.com/imyller/meta-nodejs&title=meta-nodejs&language=&tags=github&category=software)
 
-## Node versions
+## Node.js versions
 
 Stable releases of Node.js:
- * `5.6`
- * `5.5`
- * `5.4`
- * `5.3`
- * `5.2`
- * `5.1`
- * `5.0`
- * `4.3` (LTS)
- * `4.2`
- * `4.1`
- * `4.0`
- * `0.12` (LTS)
- * `0.10`
- * `0.8`
+ * `5.x`
+ * `4.x` (LTS)
+ * `0.12.x` (LTS)
+ * `0.10.x`
+ * `0.8.x`
 
-Stable releases of io.js:
- * `3.3`
- * `3.2`
- * `3.1`
- * `3.0`
- * `2.5`
- * `2.4`
- * `2.3`
- * `2.2`
- * `2.1`
- * `2.0`
- * `1.8`
- * `1.7`
- * `1.6`
- * `1.5`
- * `1.4`
- * `1.3`
- * `1.2`
- * `1.1`
- * `1.0`
+### Node.js Long Term Support Release Schedule
+
+![LTS Schedule](https://github.com/nodejs/LTS/raw/master/schedule.png)
 
 ## Available Packages
 
@@ -50,37 +25,21 @@ Stable releases of io.js:
  * `nodejs-dtrace`
  * `nodejs-systemtap`
  * `nodejs-wafadmin` (only with Node.js `0.8`)
- * `iojs`
- * `iojs-npm`
- * `iojs-dtrace`
- * `iojs-systemtap`
 
 Installation
 ============
 
-1. Add `meta-nodejs` layer to `sources/layers.txt`
+Layer installation varies depending on your OpenEmbedded distribution. These instructions are generic.
 
-	```
-	  meta-nodejs,git://github.com/imyller/meta-nodejs.git,master,HEAD
-	```
+1. Fetch `meta-nodejs` layer from `https://github.com/imyller/meta-nodejs.git`
 	
-2. Add `meta-nodejs` layer to `EXTRALAYERS` in `conf/bblayers.conf`
+2. Add `meta-nodejs` layer to `EXTRALAYERS` in `conf/bblayers.conf`. For example:
 
 	```bitbake
 		EXTRALAYERS +=" \
 			${TOPDIR}/sources/meta-nodejs \
 		"
 	```
-  
-### Setting the preferred Node provider
-
-It is recommended that you define the preferred provider of Node engine in your `local.conf`. For example:
-```bitbake
-PREFERRED_PROVIDER_node = "nodejs"
-PREFERRED_PROVIDER_node-native = "nodejs-native"
-```
-
-With preferred provider selected you can use package name `node` in your recipe `DEPENDS` and `RDEPENDS`.
 
 Usage
 =====
@@ -89,44 +48,17 @@ Usage
 
 To build latest stable Node.js package:
 
-If you have set `PREFERRED_PROVIDER_node`:
-```shell
-	bitbake node 	
-```
-or if you want to build Node.js:
 ```shell
 	bitbake nodejs
 ```
-or if you want to build io.js:
-```shell
-	bitbake iojs
-```
 
-#### Resolve build conflicts between `nodejs` and `iojs`
+### Node.js as a dependency
 
-If you have built both `nodejs` and `iojs` to same root fs, you can resolve the conflict by running:
+Add Node.js as a dependency in recipe with `RDEPENDS` (for runtime) or `DEPENDS` (for build):
 
-```shell
-	bitbake iojs nodejs iojs-native nodejs-native -c cleanall -f
-```
-
-### Node as a dependency
-
-Add Node.js or io.js as a dependency in recipe with `RDEPENDS` (for runtime) or `DEPENDS` (for build):
-
-```bitbake
-	DEPENDS += " node"			# Only if you have set the PREFERRED_PROVIDER_node	
-	RDEPENDS_${PN} += " node"	# Only if you have set the PREFERRED_PROVIDER_node	
-```
-or 
 ```bitbake
 	DEPENDS += " nodejs"
 	RDEPENDS_${PN} += " nodejs"
-```
-or 
-```bitbake
-	DEPENDS += " iojs"
-	RDEPENDS_${PN} += " iojs"
 ```
 
 ### `npm install` buildable recipes
@@ -136,7 +68,7 @@ Inherit `npm-install` build task classes in your recipe. This will automatically
 Bitbake classes 
 ===============
 
-`meta-nodejs` layer adds two new classes: `npm` and `npm-install`.
+`meta-nodejs` layer adds few Node.js related helper classes.
 
 ## `npm` class
 
@@ -159,6 +91,7 @@ For example:
 
  * `NPM_FLAGS`: Extra command line arguments for `npm` calls made by `oe_runnpm()`
  * `NPM_ARCH`: Override npm target architecture (defaults to `TARGET_ARCH`)
+ * `NPM_REGISTRY`: override npm registry URL
 
 ## `npm-install` class
 
@@ -179,9 +112,9 @@ You can disable one or more of these build tasks in the recipe with `do_<tasknam
  * `NPM_INSTALL_FLAGS`: Extra command line arguments for `npm` calls made in `npm_install` task 
  * `NPM_INSTALL`: Parameters for `npm install` command (such as specific package names)
 
-## `npm-global-install` class
+## `npm-install-global` class
 
-`npm-global-install` class inherits `npm` class and installs the selected package globally.
+`npm-install-global` class inherits `npm` class and installs the selected package globally.
 This is done in the `do_install` task of the class.
 
 ### Variables
@@ -219,3 +152,59 @@ It defines the following functions:
 
 * `NPM_INSTALL_FLAGS`: Extra command line arguments for `npm` calls made in `do_configure` task
 * `GULP_TARGET`: The gulp target to run. (default: "")
+
+## `bower` class
+
+`bower` is a package manager for web applications front-end dependencies: [bower.io](http://bower.io/ "bower.io")
+
+`bower` class defines following functions:
+ 
+  * `oe_runbower`: call `bower` command line utility
+  
+### Variables
+
+ * `BOWER`: bower command line utility (default: `bower`)
+ * `BOWER_FLAGS`: Extra command line arguments for `bower` calls made by `oe_runbower()`
+ * `BOWER_REGISTRY`: override Bower registry URL 
+ 
+## `bower-install` class
+
+Suppose a web application has front-end dependencies which are listed in the file
+bower.json. In this case the web application recipe can auto-install all those
+dependencies during yocto build by inheriting `bower-install` class.
+
+`bower-install` class inherits `bower` class and adds following build tasks:
+
+  * `bower_install`: runs `bower install` in source directory after `do_npm_dedupe` and before `do_install`
+
+Note that front-end dependencies are auto-installed into build directory. They have to be
+explicitely copied into target image in `do_install` or `do_install_append`. Here is a
+simple example of web application recipe with nodejs and bower dependencies:
+
+```bitbake
+SUMMARY = "simple web application with JS front-end dependencies listed in bower.json"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d690"
+
+SRCREV = "${AUTOREV}"
+
+PR = "r0"
+PV = "0.0.1+git${SRCPV}"
+
+SRC_URI = "git://webapp.example.org/test.git;branch=master;protocol=ssh"
+
+inherit bower-install
+
+S = "${WORKDIR}/git"
+
+do_install () {
+	install -d ${D}/www/test/public
+	cp -r ${S}/bower_components ${D}/www/test/public/
+}
+
+```
+
+### Variables
+
+ * `BOWER_INSTALL`: Parameters for `bower install` command (such as specific package names)
+ * `BOWER_INSTALL_FLAGS`: Extra command line arguments for `bower` calls made in `bower_install` task 

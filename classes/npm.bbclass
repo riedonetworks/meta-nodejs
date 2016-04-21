@@ -1,17 +1,16 @@
 DEPENDS += " node-native"
 
-RDEPENDS_${PN} += " node"
-
 PACKAGE_DEBUG_SPLIT_STYLE = "debug-file-directory"
 
 CCACHE = ""
+
+NPM_REGISTRY ?= "https://registry.npmjs.org/"
 
 NPM ?= "npm"
 NPM_CACHE_DIR = "${WORKDIR}/npm_cache"
 NPM_ARCH ?= "${TARGET_ARCH}"
 NPM_LD ?= "${CXX}"
 NPM_FLAGS ?= ""
-NPM_REGISTRY ?= "https://registry.npmjs.org/"
 
 # Target npm
 
@@ -51,6 +50,6 @@ oe_runnpm_native() {
 
 	export JOBS=$(grep -c ^processor /proc/cpuinfo)
 
-	LD="${NPM_LD_NATIVE}" ${NPM_NATIVE} --arch=${NPM_ARCH_NATIVE} --target_arch=${NPM_ARCH_NATIVE} ${NPM_FLAGS_NATIVE} "$@" || die "oe_runnpm_native failed"
+	LD="${NPM_LD_NATIVE}" ${NPM_NATIVE} --registry=${NPM_REGISTRY} --arch=${NPM_ARCH_NATIVE} --target_arch=${NPM_ARCH_NATIVE} ${NPM_FLAGS_NATIVE} "$@" || die "oe_runnpm_native failed"
 
 }

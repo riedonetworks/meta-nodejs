@@ -1,19 +1,20 @@
-DESCRIPTION = "io.js is a JavaScript platform built on Chrome's V8 runtime."
-HOMEPAGE = "http://iojs.org"
+DESCRIPTION = "Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications."
+HOMEPAGE = "http://nodejs.org"
 
-INC_PR = "r5"
-PR = "${INC_PR}.0"
+LICENSE = "MIT"
+
+INC_PR ?= "r1"
+PR = "${INC_PR}.3"
 
 DEPENDS = "openssl"
 DEPENDS_class-native += " openssl-native"
 
 PROVIDES = "node"
 RPROVIDES_${PN} = "node"
-RCONFLICTS_${PN} = "nodejs"
 
-SRC_URI = "https://iojs.org/dist/v${PV}/iojs-v${PV}.tar.gz"
+SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
-S = "${WORKDIR}/iojs-v${PV}"
+S = "${WORKDIR}/node-v${PV}"
 
 # v8 errors out if you have set CCACHE
 CCACHE = ""
@@ -45,7 +46,7 @@ do_configure () {
 do_compile () {
   export LD="${CXX}"
   alias g++="${CXX}"
-  make BUILDTYPE=Release
+  make ${PARALLEL_MAKE} BUILDTYPE=Release
   unalias g++
 }
 
