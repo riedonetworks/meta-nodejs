@@ -1,25 +1,27 @@
 --- a/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py
 +++ b/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/make.py
-@@ -144,6 +144,23 @@
+@@ -144,6 +144,25 @@
  quiet_cmd_link = LINK($(TOOLSET)) $@
  cmd_link = $(LINK.$(TOOLSET)) $(GYP_LDFLAGS) $(LDFLAGS.$(TOOLSET)) -o $@ -Wl,--start-group $(LD_INPUTS) -Wl,--end-group $(LIBS)
  
 +define xargs
-+$(1) $(wordlist 1,100,$(2))
-+$(if $(word 101,$(2)),$(call xargs,$(1),$(wordlist 101,$(words $(2)),$(2))))
++  $(1) $(wordlist 1,100,$(2))
++  $(if $(word 101,$(2)),$(call xargs,$(1),$(wordlist 101,$(words $(2)),$(2))))
 +endef
 +
 +define write-to-file
-+@echo >$(1)
-+$(call xargs,printf "%s\\n" >>$(1),$(2))
++  @echo >$(1)
++  $(call xargs,printf "%s\\n" >>$(1),$(2))
 +endef
 +
-+OBJ_FILE_LIST := ar-file-list
++OBJ_FILE_LIST_SFX := ar-file-list
 +
-+create_archive = \\
-+        rm -f $(1) $(OBJ_FILE_LIST); mkdir -p `dirname $(1)` \\
-+        $(call write-to-file,$(OBJ_FILE_LIST),$(filter %.o,$(2))) \\
-+        $(AR.$(TOOLSET)) crs $(1) @$(OBJ_FILE_LIST)
++define create_archive
++  $(eval OBJ_FILE_LIST := $(basename $(notdir $(1))).$(OBJ_FILE_LIST_SFX))
++  rm -f $(1) $(OBJ_FILE_LIST); mkdir -p `dirname $(1)`
++  $(call write-to-file,$(OBJ_FILE_LIST),$(filter %.o,$(2)))
++  $(AR.$(TOOLSET)) crs $(1) @$(OBJ_FILE_LIST)
++endef
 +
  # We support two kinds of shared objects (.so):
  # 1) shared_library, which is just bundling together many dependent libraries
@@ -36,26 +38,28 @@
              QuoteSpaces(self.output_binary),
 --- a/tools/gyp/pylib/gyp/generator/make.py
 +++ b/tools/gyp/pylib/gyp/generator/make.py
-@@ -144,6 +144,23 @@
+@@ -144,6 +144,25 @@
  quiet_cmd_link = LINK($(TOOLSET)) $@
  cmd_link = $(LINK.$(TOOLSET)) $(GYP_LDFLAGS) $(LDFLAGS.$(TOOLSET)) -o $@ -Wl,--start-group $(LD_INPUTS) -Wl,--end-group $(LIBS)
  
 +define xargs
-+$(1) $(wordlist 1,100,$(2))
-+$(if $(word 101,$(2)),$(call xargs,$(1),$(wordlist 101,$(words $(2)),$(2))))
++  $(1) $(wordlist 1,100,$(2))
++  $(if $(word 101,$(2)),$(call xargs,$(1),$(wordlist 101,$(words $(2)),$(2))))
 +endef
 +
 +define write-to-file
-+@echo >$(1)
-+$(call xargs,printf "%s\\n" >>$(1),$(2))
++  @echo >$(1)
++  $(call xargs,printf "%s\\n" >>$(1),$(2))
 +endef
 +
-+OBJ_FILE_LIST := ar-file-list
++OBJ_FILE_LIST_SFX := ar-file-list
 +
-+create_archive = \\
-+        rm -f $(1) $(OBJ_FILE_LIST); mkdir -p `dirname $(1)` \\
-+        $(call write-to-file,$(OBJ_FILE_LIST),$(filter %.o,$(2))) \\
-+        $(AR.$(TOOLSET)) crs $(1) @$(OBJ_FILE_LIST)
++define create_archive
++  $(eval OBJ_FILE_LIST := $(basename $(notdir $(1))).$(OBJ_FILE_LIST_SFX))
++  rm -f $(1) $(OBJ_FILE_LIST); mkdir -p `dirname $(1)`
++  $(call write-to-file,$(OBJ_FILE_LIST),$(filter %.o,$(2)))
++  $(AR.$(TOOLSET)) crs $(1) @$(OBJ_FILE_LIST)
++endef
 +
  # We support two kinds of shared objects (.so):
  # 1) shared_library, which is just bundling together many dependent libraries
